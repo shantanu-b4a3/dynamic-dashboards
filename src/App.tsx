@@ -29,7 +29,7 @@ const DashboardApp: React.FC = () => {
         <div className="px-6 py-4">
           <h1 className="text-2xl font-bold flex items-center gap-3">
             <BarChart3 className="w-8 h-8" />
-            Natural Language Dashboard Generator
+            Dover Natural Language Dashboard Generator
           </h1>
           <p className="text-sm text-blue-100 mt-1">
             Transform natural language into dynamic, interactive dashboards
