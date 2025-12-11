@@ -1,11 +1,11 @@
 export interface LLMQueryResponse {
-  metric: string;
-  aggregation: 'sum' | 'avg' | 'count' | 'min' | 'max';
-  dimension: string;
+  metric: string[];
+  // aggregation: 'sum' | 'avg' | 'count' | 'min' | 'max';
+  dimension: string[];
   sort?: 'asc' | 'desc';
   limit?: number;
   timeframe?: string;
-  chartType: 'bar' | 'line' | 'pie' | 'area' | 'scatter';
+  chartType: 'bar' | 'line' | 'pie' | 'area' | 'scatter' | string;
   filters?: Record<string, any>;
   chartOptions?: {
     barFillColor?: string;
