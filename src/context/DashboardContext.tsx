@@ -24,6 +24,27 @@ const DashboardContext = createContext<{
   dispatch: React.Dispatch<DashboardAction>;
 } | null>(null);
 
+const createDemoDashboard = (): Dashboard => ({
+  id: 'demo-dashboard', 
+  name: 'Demo Dashboard',
+  description: 'Sample dashboard with interactive widgets',
+  widgets: [],
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+});
+
+const getInitialState = (): DashboardState => {
+  const dashboards = [createDemoDashboard()];
+  const activeDashboard = dashboards[0]; 
+
+  return {
+    dashboards,
+    activeDashboard,
+    isLoading: false,
+    error: null,
+  };
+};
+
 const dashboardReducer = (state: DashboardState, action: DashboardAction): DashboardState => {
   switch (action.type) {
     case 'SET_ACTIVE_DASHBOARD':
@@ -116,19 +137,13 @@ const dashboardReducer = (state: DashboardState, action: DashboardAction): Dashb
 };
 
 export const DashboardProvider = ({ children }: { children: ReactNode }) => {
-  const [state, dispatch] = useReducer(dashboardReducer, {
-    dashboards: [],
-    activeDashboard: null,
-    isLoading: false,
-    error: null,
-  });
-
+  const [state, dispatch] = useReducer(dashboardReducer, getInitialState());
   return (
     <DashboardContext.Provider value={{ state, dispatch }}>
       {children}
-    </DashboardContext.Provider>
+      </DashboardContext.Provider>
   );
-};
+}
 
 export const useDashboard = () => {
   const context = useContext(DashboardContext);

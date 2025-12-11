@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import { Loader2, Send, Plus, Trash2 } from 'lucide-react';
+import { Loader2, Send, Plus, Trash2, ArrowLeftToLine, Menu } from 'lucide-react';
 import { useDashboard } from '../context/DashboardContext';
 import { LLMService, CubeJsService } from '../services/api';
 import ChartRenderer from './ChartRenderer';
 import { LLMQueryResponse, CubeJsResponse, Dashboard, ChartWidget } from '../types';
 
-const QueryPanel: React.FC = () => {
+interface QueryPanelProps {
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
+}
+
+const QueryPanel: React.FC<QueryPanelProps> = ({ isCollapsed, onToggleCollapse}) => {
   const [query, setQuery] = useState('');
   const [llmResponse, setLlmResponse] = useState<LLMQueryResponse | null>(null);
   const [cubeData, setCubeData] = useState<CubeJsResponse | null>(null);
@@ -13,6 +18,8 @@ const QueryPanel: React.FC = () => {
 
   const { state, dispatch } = useDashboard();
   const { activeDashboard } = state;
+
+  const ToggleIcon = isCollapsed ? ArrowLeftToLine : Menu;
 
   const handleSubmitQuery = async () => {
     if (!query.trim()) return;
@@ -88,11 +95,21 @@ const QueryPanel: React.FC = () => {
 
   return (
     <div className="h-full flex flex-col bg-white border-l border-gray-200">
-      <div className="px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
-        <h2 className="text-lg font-bold">Query Panel</h2>
+      <div className="px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex items-center justify-between">
+        {!isCollapsed && (
+          <h2 className="text-lg font-bold flex-1 truncate">Query Panel</h2>
+        )}
+        <button 
+          onClick={onToggleCollapse} 
+          className="p-1 rounded hover:bg-white/20 transition-colors"
+          title={isCollapsed ? "Expand Query Panel" : "Collapse Query Panel"}
+        >
+          <ToggleIcon className="w-5 h-5" />
+        </button>
       </div>
 
-      <div className="flex-1 overflow-auto p-6 space-y-6">
+      {!isCollapsed? (
+        <div className="flex-1 overflow-auto p-6 space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Natural Language Query
@@ -173,7 +190,14 @@ const QueryPanel: React.FC = () => {
             </button>
           )}
         </div>
-      </div>
+      </div>  
+      ):(
+        <div className="flex-1 flex items-center justify-center">
+          <span className="text-gray-400 text-xs [writing-mode:vertical-rl] transform rotate-180 opacity-70">
+            Query Panel
+          </span>
+        </div>
+      )}
     </div>
   );
 };
