@@ -16,6 +16,7 @@ type DashboardAction =
   | { type: 'ADD_WIDGET'; payload: ChartWidget }
   | { type: 'UPDATE_WIDGET'; payload: { id: string; updates: Partial<ChartWidget> } }
   | { type: 'REMOVE_WIDGET'; payload: string }
+  | { type: 'TOGGLE_WIDGET_VISIBILITY'; payload: string }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null };
 
@@ -31,6 +32,8 @@ const createDemoDashboard = (): Dashboard => ({
   widgets: [],
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
+  // 🆕 NEW: Initialize empty sharedWith array
+  sharedWith: [],
 });
 
 const getInitialState = (): DashboardState => {
@@ -110,6 +113,7 @@ const dashboardReducer = (state: DashboardState, action: DashboardAction): Dashb
         ),
       };
 
+    // 🔄 UPDATED: REMOVE_WIDGET now actually removes (for permanent deletion)
     case 'REMOVE_WIDGET':
       if (!state.activeDashboard) return state;
       const dashboardWithoutWidget = {
@@ -122,6 +126,23 @@ const dashboardReducer = (state: DashboardState, action: DashboardAction): Dashb
         activeDashboard: dashboardWithoutWidget,
         dashboards: state.dashboards.map((d) =>
           d.id === dashboardWithoutWidget.id ? dashboardWithoutWidget : d
+        ),
+      };
+
+    case 'TOGGLE_WIDGET_VISIBILITY':
+      if (!state.activeDashboard) return state;
+      const dashboardWithToggledWidget = {
+        ...state.activeDashboard,
+        widgets: state.activeDashboard.widgets.map((w) =>
+          w.id === action.payload ? { ...w, visible: !w.visible } : w
+        ),
+        updatedAt: new Date().toISOString(),
+      };
+      return {
+        ...state,
+        activeDashboard: dashboardWithToggledWidget,
+        dashboards: state.dashboards.map((d) =>
+          d.id === dashboardWithToggledWidget.id ? dashboardWithToggledWidget : d
         ),
       };
 

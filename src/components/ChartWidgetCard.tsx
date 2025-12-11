@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, GripVertical, Maximize2, BarChart3 } from 'lucide-react';
+import { X, GripVertical, Maximize2, BarChart3, Download } from 'lucide-react';
 import ChartRenderer from './ChartRenderer';
 import { ChartWidget } from '../types';
 
@@ -13,7 +13,10 @@ const ChartWidgetCard: React.FC<ChartWidgetCardProps> = ({ widget, onRemove, onU
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [showDownloadMenu, setShowDownloadMenu] = useState(false);
   const widgetRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<HTMLDivElement>(null);
+  const downloadBtnRef = useRef<HTMLButtonElement>(null);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('.drag-handle')) {
@@ -31,6 +34,67 @@ const ChartWidgetCard: React.FC<ChartWidgetCardProps> = ({ widget, onRemove, onU
     e.preventDefault();
     e.stopPropagation();
     setIsResizing(true);
+  };
+
+  const downloadAsSVG = async () => {
+    if (!chartRef.current) return;
+
+    try {
+      const svgElements = chartRef.current.querySelectorAll('svg');
+      if (svgElements.length === 0) return;
+
+      const svg = svgElements[0].cloneNode(true) as SVGElement;
+      svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const blob = new Blob([svgData], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${widget.title.replace(/\s+/g, '_')}.svg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      setShowDownloadMenu(false);
+    } catch (error) {
+      console.error('Error downloading SVG:', error);
+      alert('Failed to download chart as SVG');
+    }
+  };
+
+  const downloadAsJSON = () => {
+    try {
+      const dataToExport = {
+        title: widget.title,
+        query: widget.query,
+        chartType: widget.llmResponse.chartType,
+        metric: widget.llmResponse.metric,
+        dimension: widget.llmResponse.dimension,
+        data: widget.chartData.data,
+        metadata: widget.chartData.metadata,
+        createdAt: widget.createdAt
+      };
+
+      const json = JSON.stringify(dataToExport, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${widget.title.replace(/\s+/g, '_')}_data.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      setShowDownloadMenu(false);
+    } catch (error) {
+      console.error('Error downloading JSON:', error);
+      alert('Failed to download data as JSON');
+    }
   };
 
   useEffect(() => {
@@ -70,6 +134,22 @@ const ChartWidgetCard: React.FC<ChartWidgetCardProps> = ({ widget, onRemove, onU
     };
   }, [isDragging, isResizing, dragOffset, widget.size, onUpdate]);
 
+  useEffect(() => {
+    if (!showDownloadMenu) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (downloadBtnRef.current && !downloadBtnRef.current.contains(e.target as Node)) {
+        const downloadMenu = document.getElementById(`download-menu-${widget.id}`);
+        if (downloadMenu && !downloadMenu.contains(e.target as Node)) {
+          setShowDownloadMenu(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showDownloadMenu, widget.id]);
+
   return (
     <div
       ref={widgetRef}
@@ -90,16 +170,56 @@ const ChartWidgetCard: React.FC<ChartWidgetCardProps> = ({ widget, onRemove, onU
           <BarChart3 className="w-4 h-4 text-blue-600" />
           <h3 className="font-semibold text-gray-800 text-sm truncate">{widget.title}</h3>
         </div>
-        <button
-          onClick={onRemove}
-          className="text-gray-400 hover:text-red-600 transition-colors p-1 cursor-pointer"
-          title="Remove widget"
-        >
-          <X className="w-4 h-4" />
-        </button>
+        {/* Added download button with dropdown menu */}
+        <div className="flex items-center gap-1">
+          <div className="relative">
+            <button
+              ref={downloadBtnRef}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowDownloadMenu(!showDownloadMenu);
+              }}
+              className="text-gray-400 hover:text-blue-600 transition-colors p-1 cursor-pointer"
+              title="Download chart"
+            >
+              <Download className="w-4 h-4" />
+            </button>
+            
+            {showDownloadMenu && (
+              <div 
+                id={`download-menu-${widget.id}`}
+                className="absolute right-0 top-full mt-1 w-44 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+              >
+                <button
+                  onClick={downloadAsSVG}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 rounded-t-lg"
+                >
+                  <Download className="w-3 h-3" />
+                  Download as SVG
+                </button>
+                <button
+                  onClick={downloadAsJSON}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 rounded-b-lg"
+                >
+                  <Download className="w-3 h-3" />
+                  Download as JSON
+                </button>
+              </div>
+            )}
+          </div>
+          
+          <button
+            onClick={onRemove}
+            className="text-gray-400 hover:text-red-600 transition-colors p-1 cursor-pointer"
+            title="Hide widget"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
-      <div className="p-4" style={{ height: 'calc(100% - 100px)' }}>
+      {/*Added ref to chart container for SVG export */}
+      <div ref={chartRef} className="p-4" style={{ height: 'calc(100% - 100px)' }}>
         <ChartRenderer llmResponse={widget.llmResponse} cubeData={widget.chartData} />
       </div>
 
