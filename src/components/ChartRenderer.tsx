@@ -166,6 +166,51 @@ const ChartRenderer: React.FC<{
         </div>
       );
 
+    case "Table":
+      {if (!data || data.length === 0) {
+        return (
+          <div className="text-gray-500 text-sm p-4">No data available</div>
+        );
+      }
+
+      // Extract all keys as columns (based on first row)
+      const columns = Object.keys(data[0]);
+
+      return (
+        <div className="overflow-auto border rounded-lg">
+          <table className="min-w-full border-collapse">
+            <thead className="bg-gray-100">
+              <tr>
+                {columns.map((col) => (
+                  <th
+                    key={col}
+                    className="px-4 py-2 border-b text-left font-semibold text-sm text-gray-700"
+                  >
+                    {col}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+
+            <tbody>
+              {data.map((row, i) => (
+                <tr key={i} className="odd:bg-white even:bg-gray-50">
+                  {columns.map((col) => (
+                    <td
+                      key={col}
+                      className="px-4 py-2 border-b text-sm text-gray-800"
+                    >
+                      {String(row[col] ?? "")}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
     default:
       return (
         <div className="flex items-center justify-center h-full text-gray-400">
