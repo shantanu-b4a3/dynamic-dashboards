@@ -48,9 +48,7 @@ const ChartRenderer: React.FC<{
           <BarChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
             <XAxis
-              dataKey={
-                dimension[0]
-              }
+              dataKey={dimension[0]}
               tick={{ fontSize: 11 }}
               angle={chartOptions.xAxisAngle ?? -45}
               textAnchor="end"
@@ -60,19 +58,18 @@ const ChartRenderer: React.FC<{
             <Tooltip contentStyle={tooltipStyle} />
 
             {
-              // dimension.length === 1 ? 
+              // dimension.length === 1 ?
               <Bar
-              dataKey={metric[0]}
-              fill={chartOptions.barFillColor || "#3b82f6"}
-              radius={[8, 8, 0, 0]}
-            /> 
-            // : dimension.map((dim, index) => <Bar
-            //   dataKey={metric[0]}
-            //   fill={chartOptions.barFillColor || colors[index % colors.length]} 
-            //   radius={[8, 8, 0, 0]}
-            // />)
+                dataKey={metric[0]}
+                fill={chartOptions.barFillColor || "#3b82f6"}
+                radius={[8, 8, 0, 0]}
+              />
+              // : dimension.map((dim, index) => <Bar
+              //   dataKey={metric[0]}
+              //   fill={chartOptions.barFillColor || colors[index % colors.length]}
+              //   radius={[8, 8, 0, 0]}
+              // />)
             }
-         
           </BarChart>
         </ResponsiveContainer>
       );
@@ -82,12 +79,7 @@ const ChartRenderer: React.FC<{
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis
-              dataKey={
-                dimension[0]
-              }
-              tick={{ fontSize: 11 }}
-            />
+            <XAxis dataKey={dimension[0]} tick={{ fontSize: 11 }} />
             <YAxis tick={{ fontSize: 11 }} />
             <Tooltip contentStyle={tooltipStyle} />
             <Line
@@ -119,24 +111,25 @@ const ChartRenderer: React.FC<{
               cy="50%"
               outerRadius={80}
               label={(entry) => {
-              // entry has: name, value, percent, payload, etc.
-              
-              return `${entry.name} (${entry.value})`;
-            }}
+                // entry has: name, value, percent, payload, etc.
+
+                return `${entry.name} (${entry.value})`;
+              }}
               labelLine={{ stroke: "#9ca3af", strokeWidth: 1 }}
             >
               {pieData.map((ele, index) => (
-                <Cell
-                  key={ele.name}
-                  fill={colors[index % colors.length]}
-                />
+                <Cell key={ele.name} fill={colors[index % colors.length]} />
               ))}
             </Pie>
-            <Tooltip formatter={(value, name, props) => {
-              // name here may be index if nameKey is missing — we have nameKey, but be safe:
-              const label = props && props.payload ? props.payload.name : (name || "");
-              return [value, label]; // [displayValue, displayName]
-            }} contentStyle={tooltipStyle} />
+            <Tooltip
+              formatter={(value, name, props) => {
+                // name here may be index if nameKey is missing — we have nameKey, but be safe:
+                const label =
+                  props && props.payload ? props.payload.name : name || "";
+                return [value, label]; // [displayValue, displayName]
+              }}
+              contentStyle={tooltipStyle}
+            />
             {chartOptions.showLegend && <Legend />}
           </PieChart>
         </ResponsiveContainer>
@@ -147,12 +140,7 @@ const ChartRenderer: React.FC<{
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis
-              dataKey={
-                dimension[0]
-              }
-              tick={{ fontSize: 11 }}
-            />
+            <XAxis dataKey={dimension[0]} tick={{ fontSize: 11 }} />
             <YAxis tick={{ fontSize: 11 }} />
             <Tooltip contentStyle={tooltipStyle} />
             <Area
@@ -166,8 +154,17 @@ const ChartRenderer: React.FC<{
         </ResponsiveContainer>
       );
 
-    case 'KPI':
-      return(<div className="border-2 rounded-md border-solid flex flex-col p-3"><span className="text-lg font-bold">{data[0][dimension[0]]}</span> <span>{data[0][metric[0]]}</span></div>)
+    case "KPI":
+      return (
+        <div className="border border-gray-300 rounded-xl bg-white shadow-sm p-4 flex flex-col gap-1 hover:shadow-md transition-shadow">
+          <span className="text-sm text-gray-500 tracking-wide">
+            {data[0][dimension[0]]}
+          </span>
+          <span className="text-3xl font-semibold text-gray-900">
+            {data[0][metric[0]]}
+          </span>
+        </div>
+      );
 
     default:
       return (
