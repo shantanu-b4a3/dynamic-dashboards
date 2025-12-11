@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { BarChart3, User, Settings, HelpCircle, LogOut, ChevronDown } from 'lucide-react';
-import { DashboardProvider, useDashboard } from './context/DashboardContext';
+import { User, Settings, HelpCircle, LogOut, ChevronDown } from 'lucide-react';
+import { DashboardProvider } from './context/DashboardContext';
 import SavedDashboardsList from './components/SavedDashboardsList';
 import DashboardCanvas from './components/DashboardCanvas';
 import QueryPanel from './components/QueryPanel';

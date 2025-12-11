@@ -45,19 +45,19 @@ const QueryPanel: React.FC<QueryPanelProps> = ({ isCollapsed, onToggleCollapse }
   }, []);
 
   // 🆕 NEW: Save query to recent queries
-  const saveToRecentQueries = (query: string, llm: LLMQueryResponse, cube: CubeJsResponse) => {
-    const newQuery: QueryHistory = {
-      id: `query-${Date.now()}`,
-      query,
-      llmResponse: llm,
-      cubeData: cube,
-      timestamp: new Date().toISOString(),
-    };
+  // const saveToRecentQueries = (query: string, llm: LLMQueryResponse, cube: CubeJsResponse) => {
+  //   const newQuery: QueryHistory = {
+  //     id: `query-${Date.now()}`,
+  //     query,
+  //     llmResponse: llm,
+  //     cubeData: cube,
+  //     timestamp: new Date().toISOString(),
+  //   };
 
-    const updated = [newQuery, ...recentQueries].slice(0, 10);
-    setRecentQueries(updated);
-    localStorage.setItem('recentQueries', JSON.stringify(updated));
-  };
+  //   const updated = [newQuery, ...recentQueries].slice(0, 10);
+  //   setRecentQueries(updated);
+  //   localStorage.setItem('recentQueries', JSON.stringify(updated));
+  // };
 
 const handleSubmitQuery = async () => {
     if (!query.trim()) return;

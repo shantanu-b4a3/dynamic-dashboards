@@ -282,7 +282,7 @@ const SavedDashboardsList: React.FC<SavedDashboardsListProps> = ({ isCollapsed, 
     };
 
     // 🆕 NEW: Delete individual widget
-    const handleDeleteWidget = (widgetId: string, dashboardId: string) => {
+    const handleDeleteWidget = (widgetId: string) => {
         if (confirm('Are you sure you want to delete this widget? This action cannot be undone.')) {
             dispatch({ type: 'REMOVE_WIDGET', payload: widgetId });
         }
@@ -557,7 +557,7 @@ const SavedDashboardsList: React.FC<SavedDashboardsListProps> = ({ isCollapsed, 
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      handleDeleteWidget(widget.id, dashboard.id);
+                                      handleDeleteWidget(widget.id);
                                     }}
                                     className="ml-2 p-1 text-red-500 hover:text-red-700 hover:bg-red-100 rounded transition-colors"
                                     title="Delete widget permanently"
