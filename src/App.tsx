@@ -1,27 +1,22 @@
-import React, { useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { BarChart3 } from 'lucide-react';
 import { DashboardProvider, useDashboard } from './context/DashboardContext';
 import SavedDashboardsList from './components/SavedDashboardsList';
 import DashboardCanvas from './components/DashboardCanvas';
 import QueryPanel from './components/QueryPanel';
-import { Dashboard } from './types';
+// import { Dashboard } from './types';
 
 const DashboardApp: React.FC = () => {
-  const { state, dispatch } = useDashboard();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isQueryPanelCollapsed, setIsQueryPanelCollapsed] = useState(false);
 
-  useEffect(() => {
-    if (state.dashboards.length === 0) {
-      const demoDashboard: Dashboard = {
-        id: 'demo-dashboard',
-        name: 'Demo Dashboard',
-        description: 'Sample dashboard with interactive widgets',
-        widgets: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      dispatch({ type: 'ADD_DASHBOARD', payload: demoDashboard });
-    }
-  }, []);
+  const toggleSidebar = () => setIsSidebarCollapsed(prev => !prev);
+  const toggleQueryPanel = () => setIsQueryPanelCollapsed(prev => !prev);
+
+  const sidebarWidthClass = isSidebarCollapsed ? 'w-14' : 'w-80';
+  const queryPanelWidthClass = isQueryPanelCollapsed ? 'w-14' : 'w-96';
+
+  const canvasRef = useRef<HTMLDivElement>(null);
 
   return (
     <div className="h-screen w-screen flex flex-col bg-gray-100 overflow-hidden">
@@ -38,16 +33,23 @@ const DashboardApp: React.FC = () => {
       </header>
 
       <div className="flex-1 flex overflow-hidden">
-        <div className="w-80 flex-shrink-0">
-          <SavedDashboardsList />
+        <div className={`${sidebarWidthClass} flex-shrink-0 transition-all duration-300`}>
+          <SavedDashboardsList
+            isCollapsed={isSidebarCollapsed}
+            onToggleCollapse={toggleSidebar} 
+            canvasRef={canvasRef}
+          />
         </div>
 
         <div className="flex-1 min-w-0">
-          <DashboardCanvas />
+          <DashboardCanvas canvasRef={canvasRef} />
         </div>
 
-        <div className="w-96 flex-shrink-0">
-          <QueryPanel />
+        <div className={`${queryPanelWidthClass} flex-shrink-0 transition-all duration-300`}>
+          <QueryPanel 
+            isCollapsed={isQueryPanelCollapsed} 
+            onToggleCollapse={toggleQueryPanel}
+          />
         </div>
       </div>
     </div>
