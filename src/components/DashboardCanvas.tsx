@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart3, LineChart, PieChart, Plus, Table } from 'lucide-react';
+import { BarChart3, LineChart, PieChart, Table } from 'lucide-react';
 import { useDashboard } from '../context/DashboardContext';
 import ChartWidgetCard from './ChartWidgetCard';
 
