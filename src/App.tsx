@@ -47,7 +47,7 @@ const DashboardApp: React.FC = () => {
             <img 
               src='https://www.dovercorporation.com/images/default-source/template-graphics/logo-dover_main.png?sfvrsn=9c8c1ac8_2' 
               alt="Dover Logo" 
-              className="h-10 w-auto brightness-0 invert opacity-90" 
+              className="h-10 w-auto" 
             />
 
             <div className="hidden md:block">
