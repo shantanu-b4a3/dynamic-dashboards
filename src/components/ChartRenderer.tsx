@@ -41,8 +41,8 @@ const ChartRenderer: React.FC<{
     color: "#fff",
   };
 
-  switch (chartType) {
-    case "Bar":
+  switch (chartType.toLocaleLowerCase()) {
+    case "bar":
       return (
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
@@ -74,7 +74,7 @@ const ChartRenderer: React.FC<{
         </ResponsiveContainer>
       );
 
-    case "Line":
+    case "line":
       return (
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
@@ -93,7 +93,7 @@ const ChartRenderer: React.FC<{
         </ResponsiveContainer>
       );
 
-    case "Pie":
+    case "pie":
       const colors = chartOptions.pieColors || DEFAULT_COLORS;
       const pieData = data.map((item) => ({
         name: item[dimension[0]],
@@ -135,7 +135,7 @@ const ChartRenderer: React.FC<{
         </ResponsiveContainer>
       );
 
-    case "Area":
+    case "area":
       return (
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>
@@ -154,7 +154,7 @@ const ChartRenderer: React.FC<{
         </ResponsiveContainer>
       );
 
-    case "KPI":
+    case "kpi":
       return (
         <div className="border border-gray-300 rounded-xl bg-white shadow-sm p-4 flex flex-col gap-1 hover:shadow-md transition-shadow">
           <span className="text-sm text-gray-500 tracking-wide">
@@ -166,7 +166,7 @@ const ChartRenderer: React.FC<{
         </div>
       );
 
-    case "Table":
+    case "table":
       {if (!data || data.length === 0) {
         return (
           <div className="text-gray-500 text-sm p-4">No data available</div>
