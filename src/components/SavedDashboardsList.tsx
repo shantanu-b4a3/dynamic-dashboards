@@ -317,12 +317,12 @@ const SavedDashboardsList: React.FC<SavedDashboardsListProps> = ({ isCollapsed, 
     };
 
     // 🔄 UPDATED: Batch download now shows menu
-    const handleBatchDownload = () => {
-        if (selectedDashboards.length === 0) return;
+    // const handleBatchDownload = () => {
+    //     if (selectedDashboards.length === 0) return;
         
-        const dashboardsToDownload = dashboards.filter(d => selectedDashboards.includes(d.id));
-        dashboardsToDownload.forEach(dashboard => downloadDashboardJSON(dashboard));
-    };
+    //     const dashboardsToDownload = dashboards.filter(d => selectedDashboards.includes(d.id));
+    //     dashboardsToDownload.forEach(dashboard => downloadDashboardJSON(dashboard));
+    // };
 
     const handleUpdateDashboard = (id: string, name: string, description: string) => {
         dispatch({
