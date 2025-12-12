@@ -112,6 +112,68 @@ const downloadDashboardPDF = async (dashboard: Dashboard, canvasRef: React.RefOb
     }
 };
 
+// 🆕 NEW: Download dashboard as CSV
+const downloadDashboardCSV = (dashboard: Dashboard) => {
+  // 1. Start with Dashboard Metadata
+  let csvContent = `Dashboard Name,${escapeCSV(dashboard.name)}\n`;
+  csvContent += `Description,${escapeCSV(dashboard.description)}\n`;
+  csvContent += `Created At,${dashboard.createdAt}\n\n`;
+
+  // 2. Iterate through each widget
+  dashboard.widgets.forEach((widget) => {
+    // Add a section header for the widget
+    csvContent += `WIDGET: ${escapeCSV(widget.title)}\n`;
+    csvContent += `Type,${widget.llmResponse.chartType}\n`;
+
+    const data = widget.chartData.data;
+
+    // Check if data exists
+    if (!data || data.length === 0) {
+      csvContent += "No data available for this widget\n\n";
+      return;
+    }
+
+    // Get Headers dynamically from the first data object
+    const headers = Object.keys(data[0]);
+    csvContent += headers.map(escapeCSV).join(",") + "\n";
+
+    // Map rows
+    data.forEach((row: any) => {
+      const rowLine = headers.map((header) => {
+        const cellValue = row[header];
+        return escapeCSV(cellValue);
+      }).join(",");
+      csvContent += rowLine + "\n";
+    });
+
+    // Add spacing between widgets
+    csvContent += "\n\n";
+  });
+
+  // 3. Create and download the file
+  const filename = `${dashboard.name.replace(/\s+/g, '_')}_data.csv`;
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+const escapeCSV = (value: any) => {
+  if (value === null || value === undefined) return "";
+  const stringValue = String(value);
+  // If value contains comma, quote, or newline, wrap in quotes and escape internal quotes
+  if (stringValue.includes(",") || stringValue.includes('"') || stringValue.includes("\n")) {
+    return `"${stringValue.replace(/"/g, '""')}"`;
+  }
+  return stringValue;
+};
+
 interface EditModalProps {
     dashboard: Dashboard;
     onClose: () => void;
@@ -170,6 +232,13 @@ const DownloadMenu: React.FC<DownloadMenuProps> = ({ dashboard, canvasRef, onClo
       >
         <Download className="w-4 h-4 mr-2" /> 
         Download as JSON
+      </button>
+      <button
+        onClick = {() => { downloadDashboardCSV(dashboard); onClose(); }}
+        className="w-full text-left flex items-center p-3 text-sm text-gray-700 hover:bg-gray-100"
+      >
+        <Download className="w-4 h-4 mr-2" />
+        Download as CSV
       </button>
       <button 
         onClick={() => { downloadDashboardSVG(dashboard, canvasRef); onClose(); }}
@@ -380,7 +449,7 @@ const SavedDashboardsList: React.FC<SavedDashboardsListProps> = ({ isCollapsed, 
 
                 {/* 🔄 UPDATED: Download button now shows menu */}
                 <div className="flex space-x-2 relative">
-                    <div className="relative">
+                    {/* <div className="relative">
                         <button 
                             onClick={() => setDownloadMenuOpenId(downloadMenuOpenId ? null : 'batch')}
                             disabled={selectedDashboards.length === 0}
@@ -400,7 +469,7 @@ const SavedDashboardsList: React.FC<SavedDashboardsListProps> = ({ isCollapsed, 
                                 </button>
                             </div>
                         )}
-                    </div>
+                    </div> */}
                     <button 
                         onClick={handleBatchDelete}
                         disabled={selectedDashboards.length === 0}

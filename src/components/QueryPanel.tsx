@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, Send, Plus, Trash2, ArrowLeftToLine, Menu, Clock, TrendingUp } from 'lucide-react';
+import { Loader2, Send, Plus, Trash2, ArrowLeftToLine, Menu, Clock, TrendingUp, X } from 'lucide-react';
 import { useDashboard } from '../context/DashboardContext';
 // import { LLMService, CubeJsService } from '../services/api';
 import ChartRenderer from './ChartRenderer';
@@ -92,6 +92,15 @@ const handleSubmitQuery = async () => {
       setIsProcessing(false);
     }
   };
+
+const handleDeleteRecentQuery = (queryId: string) => {
+    // 1. Create a new array that excludes the query with the matching ID
+    const updatedQueries = recentQueries.filter(query => query.id !== queryId);
+    
+    // 2. Update the state with the new, filtered array
+    setRecentQueries(updatedQueries);
+    localStorage.setItem('recentQueries', JSON.stringify(updatedQueries));
+};
 
   // 🆕 NEW: Load a recent query
   const handleLoadRecentQuery = (queryHistory: QueryHistory) => {
@@ -375,24 +384,41 @@ const handleSubmitQuery = async () => {
                 Recent Queries
               </h3>
               <div className="space-y-2">
-                {recentQueries.slice(0, 5).map((queryHistory) => (
-                  <button
-                    key={queryHistory.id}
-                    onClick={() => handleLoadRecentQuery(queryHistory)}
-                    className="w-full text-left p-3 bg-gradient-to-r from-gray-50 to-blue-50 hover:from-gray-100 hover:to-blue-100 border border-gray-200 rounded-lg transition-all group"
-                  >
-                    <div className="flex items-start gap-2">
-                      <TrendingUp className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-800 font-medium truncate group-hover:text-blue-700">
-                          {queryHistory.query}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {new Date(queryHistory.timestamp).toLocaleString()}
-                        </p>
+                  {recentQueries.slice(0, 5).map((queryHistory) => (
+                    <div
+                      key={queryHistory.id}
+                      className="relative group p-0 border border-gray-200 rounded-lg transition-all hover:border-blue-300"
+                    >
+                    <button
+                      onClick={() => handleLoadRecentQuery(queryHistory)}
+                      className="w-full text-left p-3 bg-gradient-to-r from-gray-50 to-blue-50 hover:from-gray-100 hover:to-blue-100 rounded-lg pr-10"
+                    >
+                      <div className="flex items-start gap-2">
+                        <TrendingUp className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-gray-800 font-medium truncate group-hover:text-blue-700">
+                            {queryHistory.query}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {new Date(queryHistory.timestamp).toLocaleString()}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </button>
+                    </button>
+                    <button
+                        // NOTE: You must define this function in the parent component
+                        onClick={(e) => {
+                            e.stopPropagation(); // Prevent the main button's onClick from firing
+                            handleDeleteRecentQuery(queryHistory.id); 
+                        }}
+                        // Positioned absolutely on the right edge, slightly centered vertically
+                        className="absolute top-1/2 right-3 transform -translate-y-1/2 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 hover:text-red-600 hover:bg-gray-200 transition-opacity z-10"
+                        aria-label={`Delete query: ${queryHistory.query}`}
+                    >
+                        {/* Assuming you have a Trash/X icon component, e.g., 'X' or 'Trash' */}
+                        <X className="w-4 h-4" /> 
+                    </button>
+                </div>
                 ))}
               </div>
             </div>

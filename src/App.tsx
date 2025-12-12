@@ -64,8 +64,8 @@ const DashboardApp: React.FC = () => {
                 <User className="w-5 h-5" />
               </div>
               <div className="text-left hidden sm:block">
-                <p className="text-sm font-semibold">John Doe</p>
-                <p className="text-xs text-blue-100">Admin</p>
+                <p className="text-sm font-semibold">Dover Opco User</p>
+                <p className="text-xs text-blue-100">Dashboard Admin</p>
               </div>
               <ChevronDown className="w-4 h-4" />
             </button>
@@ -74,8 +74,8 @@ const DashboardApp: React.FC = () => {
             {showUserMenu && (
               <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
                 <div className="px-4 py-3 border-b border-gray-200">
-                  <p className="text-sm font-semibold text-gray-800">John Doe</p>
-                  <p className="text-xs text-gray-500">john.doe@example.com</p>
+                  <p className="text-sm font-semibold text-gray-800">Dover Opco User</p>
+                  <p className="text-xs text-gray-500">admindasuser@dovercorp.com</p>
                 </div>
                 
                 <div className="py-2">
