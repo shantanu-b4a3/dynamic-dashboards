@@ -1,24 +1,46 @@
-import React, { useState, useEffect } from 'react';
-import { Loader2, Send, Plus, Trash2, ArrowLeftToLine, Menu, Clock, TrendingUp, X } from 'lucide-react';
-import { useDashboard } from '../context/DashboardContext';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Loader2,
+  Send,
+  Plus,
+  Trash2,
+  ArrowLeftToLine,
+  Menu,
+  Clock,
+  TrendingUp,
+  X,
+} from "lucide-react";
+import { useDashboard } from "../context/DashboardContext";
 // import { LLMService, CubeJsService } from '../services/api';
-import ChartRenderer from './ChartRenderer';
-import ValidationPanel from './ValidationPanel';
-import { CreateDashboardModal } from './ModalComponents';
-import { LLMQueryResponse, CubeJsResponse, Dashboard, ChartWidget, QueryHistory } from '../types';
+import ChartRenderer from "./ChartRenderer";
+import ValidationPanel from "./ValidationPanel";
+import { CreateDashboardModal } from "./ModalComponents";
+import {
+  LLMQueryResponse,
+  CubeJsResponse,
+  Dashboard,
+  ChartWidget,
+  QueryHistory,
+} from "../types";
 
 interface QueryPanelProps {
   isCollapsed: boolean;
   onToggleCollapse: () => void;
 }
 
-const QueryPanel: React.FC<QueryPanelProps> = ({ isCollapsed, onToggleCollapse }) => {
-  const [query, setQuery] = useState('');
+const QueryPanel: React.FC<QueryPanelProps> = ({
+  isCollapsed,
+  onToggleCollapse,
+}) => {
+  const [query, setQuery] = useState("");
   const [llmResponse, setLlmResponse] = useState<LLMQueryResponse | null>(null);
   const [cubeData, setCubeData] = useState<CubeJsResponse | null>(null);
+  const [additionalQuestions, setAdditionalQuestions] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
   // 🆕 NEW: Validation state
-  const [validationState, setValidationState] = useState<'pending' | 'validated' | 'invalidated'>('pending');
+  const [validationState, setValidationState] = useState<
+    "pending" | "validated" | "invalidated"
+  >("pending");
   // 🆕 NEW: Recent queries
   const [recentQueries, setRecentQueries] = useState<QueryHistory[]>([]);
   // 🆕 NEW: Show create dashboard modal
@@ -30,16 +52,17 @@ const QueryPanel: React.FC<QueryPanelProps> = ({ isCollapsed, onToggleCollapse }
   const { activeDashboard } = state;
 
   const ToggleIcon = isCollapsed ? ArrowLeftToLine : Menu;
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   // 🆕 NEW: Load recent queries from localStorage
   useEffect(() => {
-    const stored = localStorage.getItem('recentQueries');
+    const stored = localStorage.getItem("recentQueries");
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
         setRecentQueries(parsed.slice(0, 10)); // Keep only last 10
       } catch (e) {
-        console.error('Error loading recent queries:', e);
+        console.error("Error loading recent queries:", e);
       }
     }
   }, []);
@@ -59,7 +82,7 @@ const QueryPanel: React.FC<QueryPanelProps> = ({ isCollapsed, onToggleCollapse }
   //   localStorage.setItem('recentQueries', JSON.stringify(updated));
   // };
 
-const handleSubmitQuery = async () => {
+  const handleSubmitQuery = async () => {
     if (!query.trim()) return;
 
     setIsProcessing(true);
@@ -85,6 +108,9 @@ const handleSubmitQuery = async () => {
       // await CubeJsService.executeQuery(llmResult);
       setCubeData(cubeResult);
 
+      const additionalQuestions = apiResponse.additional_questions;
+      setAdditionalQuestions(additionalQuestions);
+
       //Make combined API call here
     } catch (error) {
       console.error("Error processing query:", error);
@@ -93,33 +119,35 @@ const handleSubmitQuery = async () => {
     }
   };
 
-const handleDeleteRecentQuery = (queryId: string) => {
+  const handleDeleteRecentQuery = (queryId: string) => {
     // 1. Create a new array that excludes the query with the matching ID
-    const updatedQueries = recentQueries.filter(query => query.id !== queryId);
-    
+    const updatedQueries = recentQueries.filter(
+      (query) => query.id !== queryId
+    );
+
     // 2. Update the state with the new, filtered array
     setRecentQueries(updatedQueries);
-    localStorage.setItem('recentQueries', JSON.stringify(updatedQueries));
-};
+    localStorage.setItem("recentQueries", JSON.stringify(updatedQueries));
+  };
 
   // 🆕 NEW: Load a recent query
   const handleLoadRecentQuery = (queryHistory: QueryHistory) => {
     setQuery(queryHistory.query);
     setLlmResponse(queryHistory.llmResponse);
     setCubeData(queryHistory.cubeData);
-    setValidationState('pending');
+    setValidationState("pending");
   };
 
   // 🆕 NEW: Validation handlers
   const handleValidate = (note?: string) => {
-    setValidationState('validated');
-    console.log('Chart validated:', note);
+    setValidationState("validated");
+    console.log("Chart validated:", note);
     // TODO: You can add your validation logic here
   };
 
   const handleInvalidate = (note?: string) => {
-    setValidationState('invalidated');
-    console.log('Chart invalidated:', note);
+    setValidationState("invalidated");
+    console.log("Chart invalidated:", note);
     // TODO: You can add your invalidation logic here
 
     // Optionally clear the chart after invalidation
@@ -135,8 +163,10 @@ const handleDeleteRecentQuery = (queryId: string) => {
     if (!llmResponse || !cubeData) return;
 
     // 🔄 UPDATED: Check validation state before adding
-    if (validationState === 'invalidated') {
-      alert('Cannot add invalidated chart to dashboard. Please validate it first or regenerate the query.');
+    if (validationState === "invalidated") {
+      alert(
+        "Cannot add invalidated chart to dashboard. Please validate it first or regenerate the query."
+      );
       return;
     }
 
@@ -153,20 +183,24 @@ const handleDeleteRecentQuery = (queryId: string) => {
       query,
       llmResponse,
       chartData: cubeData,
-      position: { x: 20 + (widgetCount % 3) * 420, y: 20 + Math.floor(widgetCount / 3) * 320 },
+      position: {
+        x: 20 + (widgetCount % 3) * 420,
+        y: 20 + Math.floor(widgetCount / 3) * 320,
+      },
       size: { width: 400, height: 300 },
       createdAt: new Date().toISOString(),
       visible: true,
       // 🆕 NEW: Save validation state with widget
       validationState,
-      validatedAt: validationState === 'validated' ? new Date().toISOString() : undefined,
+      validatedAt:
+        validationState === "validated" ? new Date().toISOString() : undefined,
     };
 
-    dispatch({ type: 'ADD_WIDGET', payload: newWidget });
-    setQuery('');
+    dispatch({ type: "ADD_WIDGET", payload: newWidget });
+    setQuery("");
     setLlmResponse(null);
     setCubeData(null);
-    setValidationState('pending');
+    setValidationState("pending");
   };
 
   async function askApi(question: string) {
@@ -199,12 +233,16 @@ const handleDeleteRecentQuery = (queryId: string) => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    dispatch({ type: 'ADD_DASHBOARD', payload: newDashboard });
+    dispatch({ type: "ADD_DASHBOARD", payload: newDashboard });
 
     // If we have a pending chart, ask if they want to add it
-    if (llmResponse && cubeData && validationState !== 'invalidated') {
+    if (llmResponse && cubeData && validationState !== "invalidated") {
       setTimeout(() => {
-        if (confirm('Would you like to add the current chart to this new dashboard?')) {
+        if (
+          confirm(
+            "Would you like to add the current chart to this new dashboard?"
+          )
+        ) {
           handleAddToDashboard();
         }
       }, 300);
@@ -220,7 +258,7 @@ const handleDeleteRecentQuery = (queryId: string) => {
 
   const confirmDeleteDashboard = () => {
     if (activeDashboard) {
-      dispatch({ type: 'DELETE_DASHBOARD', payload: activeDashboard.id });
+      dispatch({ type: "DELETE_DASHBOARD", payload: activeDashboard.id });
       setShowDeleteConfirm(false);
     }
   };
@@ -239,10 +277,13 @@ const handleDeleteRecentQuery = (queryId: string) => {
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 p-6">
-            <h3 className="text-xl font-bold text-gray-800 mb-2">Delete Dashboard?</h3>
+            <h3 className="text-xl font-bold text-gray-800 mb-2">
+              Delete Dashboard?
+            </h3>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to delete "{activeDashboard?.name}"? This action cannot be undone.
-              All widgets in this dashboard will be permanently removed.
+              Are you sure you want to delete "{activeDashboard?.name}"? This
+              action cannot be undone. All widgets in this dashboard will be
+              permanently removed.
             </p>
             <div className="flex gap-3 justify-end">
               <button
@@ -276,7 +317,7 @@ const handleDeleteRecentQuery = (queryId: string) => {
       </div>
 
       {!isCollapsed ? (
-        <div className="flex-1 overflow-auto p-6 space-y-6">
+        <div ref={containerRef} className="flex-1 overflow-auto p-6 space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Natural Language Query
@@ -310,24 +351,27 @@ const handleDeleteRecentQuery = (queryId: string) => {
           {llmResponse && cubeData && (
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
               <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
-                <h3 className="text-sm font-semibold text-gray-700">Chart Preview</h3>
+                <h3 className="text-sm font-semibold text-gray-700">
+                  Chart Preview
+                </h3>
               </div>
-              <div className="p-4" style={{ height: '250px' }}>
+              <div className="p-4" style={{ height: "250px" }}>
                 <ChartRenderer llmResponse={llmResponse} cubeData={cubeData} />
               </div>
               <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
                 <button
                   onClick={handleAddToDashboard}
-                  disabled={validationState === 'invalidated'}
-                  className={`w-full font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors ${validationState === 'invalidated'
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-green-600 hover:bg-green-700 text-white'
-                    }`}
+                  disabled={validationState === "invalidated"}
+                  className={`w-full font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors ${
+                    validationState === "invalidated"
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-green-600 hover:bg-green-700 text-white"
+                  }`}
                 >
                   <Plus className="w-4 h-4" />
                   Add to Dashboard
                 </button>
-                {validationState === 'invalidated' && (
+                {validationState === "invalidated" && (
                   <p className="text-xs text-red-600 mt-2 text-center">
                     Validate the chart before adding to dashboard
                   </p>
@@ -338,10 +382,40 @@ const handleDeleteRecentQuery = (queryId: string) => {
 
           {llmResponse && (
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">LLM Interpretation</h3>
+              <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                LLM Interpretation
+              </h3>
               <pre className="text-xs text-gray-600 overflow-auto whitespace-pre-wrap">
                 {JSON.stringify(llmResponse, null, 2)}
               </pre>
+            </div>
+          )}
+
+          {llmResponse && (
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                Follow Up
+              </h3>
+              <ul className="list-disc list-inside text-xs text-gray-600">
+                {additionalQuestions.length === 0 && (
+                  <li>No additional questions available.</li>
+                )}
+                {additionalQuestions.map((question: string, index: number) => (
+                  <li
+                    className="m-1 p-1 cursor-pointer"
+                    key={index}
+                    onClick={() => {
+                      setQuery(question);
+                      containerRef.current?.scrollTo({
+                        top: 0,
+                        behavior: "smooth",
+                      });
+                    }}
+                  >
+                    {question}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
@@ -355,7 +429,9 @@ const handleDeleteRecentQuery = (queryId: string) => {
           )}
 
           <div className="pt-6 border-t border-gray-200 space-y-3">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">Dashboard Actions</h3>
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">
+              Dashboard Actions
+            </h3>
 
             <button
               onClick={() => setShowCreateModal(true)}
@@ -384,11 +460,11 @@ const handleDeleteRecentQuery = (queryId: string) => {
                 Recent Queries
               </h3>
               <div className="space-y-2">
-                  {recentQueries.slice(0, 5).map((queryHistory) => (
-                    <div
-                      key={queryHistory.id}
-                      className="relative group p-0 border border-gray-200 rounded-lg transition-all hover:border-blue-300"
-                    >
+                {recentQueries.slice(0, 5).map((queryHistory) => (
+                  <div
+                    key={queryHistory.id}
+                    className="relative group p-0 border border-gray-200 rounded-lg transition-all hover:border-blue-300"
+                  >
                     <button
                       onClick={() => handleLoadRecentQuery(queryHistory)}
                       className="w-full text-left p-3 bg-gradient-to-r from-gray-50 to-blue-50 hover:from-gray-100 hover:to-blue-100 rounded-lg pr-10"
@@ -406,19 +482,19 @@ const handleDeleteRecentQuery = (queryId: string) => {
                       </div>
                     </button>
                     <button
-                        // NOTE: You must define this function in the parent component
-                        onClick={(e) => {
-                            e.stopPropagation(); // Prevent the main button's onClick from firing
-                            handleDeleteRecentQuery(queryHistory.id); 
-                        }}
-                        // Positioned absolutely on the right edge, slightly centered vertically
-                        className="absolute top-1/2 right-3 transform -translate-y-1/2 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 hover:text-red-600 hover:bg-gray-200 transition-opacity z-10"
-                        aria-label={`Delete query: ${queryHistory.query}`}
+                      // NOTE: You must define this function in the parent component
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent the main button's onClick from firing
+                        handleDeleteRecentQuery(queryHistory.id);
+                      }}
+                      // Positioned absolutely on the right edge, slightly centered vertically
+                      className="absolute top-1/2 right-3 transform -translate-y-1/2 p-1 rounded-full text-gray-400 opacity-0 group-hover:opacity-100 hover:text-red-600 hover:bg-gray-200 transition-opacity z-10"
+                      aria-label={`Delete query: ${queryHistory.query}`}
                     >
-                        {/* Assuming you have a Trash/X icon component, e.g., 'X' or 'Trash' */}
-                        <X className="w-4 h-4" /> 
+                      {/* Assuming you have a Trash/X icon component, e.g., 'X' or 'Trash' */}
+                      <X className="w-4 h-4" />
                     </button>
-                </div>
+                  </div>
                 ))}
               </div>
             </div>
