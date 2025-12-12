@@ -168,7 +168,7 @@ const ChartWidgetCard: React.FC<ChartWidgetCardProps> = ({ widget, onRemove, onU
         <div className="flex items-center gap-2">
           <GripVertical className="w-4 h-4 text-gray-400" />
           <BarChart3 className="w-4 h-4 text-blue-600" />
-          <h3 className="font-semibold text-gray-800 text-sm truncate">{widget.title}</h3>
+          <h3 className="font-semibold text-gray-800 text-sm truncate">{widget.title.length > 30 ? widget.title.slice(0, 30) + '...' : widget.title}</h3>
         </div>
         {/* Added download button with dropdown menu */}
         <div className="flex items-center gap-1">

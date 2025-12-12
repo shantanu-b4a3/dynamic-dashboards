@@ -615,7 +615,7 @@ const SavedDashboardsList: React.FC<SavedDashboardsListProps> = ({ isCollapsed, 
                                     className="flex items-center gap-2 flex-1 text-left"
                                     title={widget.visible ? 'Click to hide' : 'Click to show'}
                                   >
-                                    <span className="truncate flex-1">{widget.title}</span>
+                                    <span className="truncate flex-1">{widget.title.length > 30 ? widget.title.slice(0, 30) + '...' : widget.title}</span>
                                     {widget.visible ? (
                                       <Eye className="w-3 h-3 flex-shrink-0" />
                                     ) : (

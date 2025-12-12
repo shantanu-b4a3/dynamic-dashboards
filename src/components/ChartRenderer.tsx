@@ -177,7 +177,7 @@ const ChartRenderer: React.FC<{
       const columns = Object.keys(data[0]);
 
       return (
-        <div className="overflow-auto border rounded-lg">
+        <div className="overflow-auto border rounded-lg" style={{ height: '100%' }}>
           <table className="min-w-full border-collapse">
             <thead className="bg-gray-100">
               <tr>
