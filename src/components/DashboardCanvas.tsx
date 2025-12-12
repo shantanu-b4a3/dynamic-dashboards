@@ -33,7 +33,7 @@ const DashboardCanvas: React.FC<DashboardCanvasProps> = ({ canvasRef }) => {
         <div className="text-center">
           <div className="flex justify-center items-center space-x-2 mb-4">
             <BarChart3 className="w-8 h-8 text-blue-400 opacity-90" />
-            <PieChart className="w-10 h-10 text-blue-500 shadow-lg p-1 rounded-full bg-blue-50/50" />
+            <PieChart className="w-10 h-10 text-blue-500 p-1 rounded-full bg-blue-50/50" />
             <LineChart className="w-8 h-8 text-blue-400 opacity-90" />
             <Table className="w-7 h-7 text-blue-400 opacity-80 mt-2" />
         </div>
