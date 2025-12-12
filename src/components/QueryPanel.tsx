@@ -307,24 +307,6 @@ const handleDeleteRecentQuery = (queryId: string) => {
             </button>
           </div>
 
-          {llmResponse && (
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">LLM Interpretation</h3>
-              <pre className="text-xs text-gray-600 overflow-auto whitespace-pre-wrap">
-                {JSON.stringify(llmResponse, null, 2)}
-              </pre>
-            </div>
-          )}
-
-          {/* 🆕 NEW: Validation Panel */}
-          {llmResponse && cubeData && (
-            <ValidationPanel
-              validationState={validationState}
-              onValidate={handleValidate}
-              onInvalidate={handleInvalidate}
-            />
-          )}
-
           {llmResponse && cubeData && (
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
               <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
@@ -352,6 +334,24 @@ const handleDeleteRecentQuery = (queryId: string) => {
                 )}
               </div>
             </div>
+          )}
+
+          {llmResponse && (
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-700 mb-2">LLM Interpretation</h3>
+              <pre className="text-xs text-gray-600 overflow-auto whitespace-pre-wrap">
+                {JSON.stringify(llmResponse, null, 2)}
+              </pre>
+            </div>
+          )}
+
+          {/* 🆕 NEW: Validation Panel */}
+          {llmResponse && cubeData && (
+            <ValidationPanel
+              validationState={validationState}
+              onValidate={handleValidate}
+              onInvalidate={handleInvalidate}
+            />
           )}
 
           <div className="pt-6 border-t border-gray-200 space-y-3">
